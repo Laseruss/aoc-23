@@ -5,10 +5,8 @@ defmodule Part1 do
       for <<byte <- line>>, byte >= ?0 and byte <= ?9, do: byte
     end)
     |> Enum.map(fn num_str ->
-      [List.first(num_str) | [List.last(num_str)]]
+      String.to_integer(<<List.first(num_str), List.last(num_str)>>)
     end)
-    |> Enum.map(&to_string/1)
-    |> Enum.map(&String.to_integer/1)
     |> Enum.sum()
   end
 end
