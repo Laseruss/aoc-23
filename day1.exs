@@ -1,4 +1,14 @@
-defmodule Part1 do
+defmodule Day01 do
+  def part1 do
+    Day01.Part1.solve("input/day1.txt")
+  end
+
+  def part2 do
+    Day01.Part2.solve()
+  end
+end
+
+defmodule Day01.Part1 do
   def solve(path) do
     File.stream!(path)
     |> Enum.map(fn line ->
@@ -11,7 +21,7 @@ defmodule Part1 do
   end
 end
 
-defmodule Part2 do
+defmodule Day01.Part2 do
   @nums [
     {"one", "1"},
     {"two", "2"},
@@ -31,21 +41,18 @@ defmodule Part2 do
     |> Enum.sum()
   end
 
-  defp find_last(line, accum \\ <<>>)
-  defp find_last(<<head, _::binary>>, _) when head >= ?0 and head <= ?9, do: <<head>>
+  defp find_last(<<head, _::binary>>) when head >= ?0 and head <= ?9, do: <<head>>
 
-  defp find_last(<<head, rest::binary>>, accum) do
-    accum = <<head>> <> accum
-
+  defp find_last(<<_, rest::binary>> = line) do
     val =
       Enum.find_value(@nums, nil, fn {num_str, num} ->
-        if String.starts_with?(accum, num_str) do
+        if String.starts_with?(line, String.reverse(num_str)) do
           num
         end
       end)
 
     case val do
-      nil -> find_last(rest, accum)
+      nil -> find_last(rest)
       x -> x
     end
   end
