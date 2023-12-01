@@ -13,44 +13,56 @@ end
 
 defmodule Part2 do
   @nums [
-    {"one", 1},
-    {"two", 2},
-    {"three", 3},
-    {"four", 4},
-    {"five", 5},
-    {"six", 6},
-    {"seven", 7},
-    {"eight", 8},
-    {"nine", 9}
+    {"one", "1"},
+    {"two", "2"},
+    {"three", "3"},
+    {"four", "4"},
+    {"five", "5"},
+    {"six", "6"},
+    {"seven", "7"},
+    {"eight", "8"},
+    {"nine", "9"}
   ]
 
-  def solve(input) do
-    input
-    |> File.stream!()
-    |> Enum.map(&find_occurences(&1, []))
-    |> Enum.map(fn row_nums ->
-      List.first(row_nums) * 10 + List.last(row_nums)
-    end)
+  def solve() do
+    File.stream!("input/day1.txt")
+    |> Enum.map(fn line -> find_first(line) <> find_last(String.reverse(line)) end)
+    |> Enum.map(&String.to_integer/1)
     |> Enum.sum()
   end
 
-  defp find_occurences(<<>>, accum), do: Enum.reverse(accum)
+  defp find_last(line, accum \\ <<>>)
+  defp find_last(<<head, _::binary>>, _) when head >= ?0 and head <= ?9, do: <<head>>
 
-  defp find_occurences(<<head, rest::binary>> = line, accum) do
-    if head >= ?0 and head <= ?9 do
-      find_occurences(rest, [String.to_integer(<<head>>) | accum])
-    else
-      val =
-        Enum.find_value(@nums, nil, fn {num_str, num} ->
-          if String.slice(line, 0..(String.length(num_str) - 1)) == num_str do
-            num
-          end
-        end)
+  defp find_last(<<head, rest::binary>>, accum) do
+    accum = <<head>> <> accum
 
-      case val do
-        nil -> find_occurences(rest, accum)
-        x -> find_occurences(rest, [x | accum])
-      end
+    val =
+      Enum.find_value(@nums, nil, fn {num_str, num} ->
+        if String.starts_with?(accum, num_str) do
+          num
+        end
+      end)
+
+    case val do
+      nil -> find_last(rest, accum)
+      x -> x
+    end
+  end
+
+  defp find_first(<<head, _::binary>>) when head >= ?0 and head <= ?9, do: <<head>>
+
+  defp find_first(<<_, rest::binary>> = line) do
+    val =
+      Enum.find_value(@nums, nil, fn {num_str, num} ->
+        if String.starts_with?(line, num_str) do
+          num
+        end
+      end)
+
+    case val do
+      nil -> find_first(rest)
+      x -> x
     end
   end
 end
