@@ -38,9 +38,7 @@ defmodule Part2 do
 
   defp find_occurences(<<>>, accum), do: Enum.reverse(accum)
 
-  defp find_occurences(line, accum) do
-    <<head, rest::binary>> = line
-
+  defp find_occurences(<<head, rest::binary>> = line, accum) do
     if head >= ?0 and head <= ?9 do
       find_occurences(rest, [String.to_integer(<<head>>) | accum])
     else
