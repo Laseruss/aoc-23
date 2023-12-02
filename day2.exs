@@ -31,24 +31,16 @@ end
 defmodule Part1 do
   def solve do
     Parse.parse("input/day2.txt")
-    |> Enum.map(fn {game, rounds} ->
-      if(Enum.all?(rounds, &check(&1))) do
-        game
-      else
-        0
-      end
+    |> Enum.filter(fn {game, rounds} ->
+      Enum.all?(rounds, &check(&1))
     end)
     |> Enum.sum()
   end
 
-  def check(round) do
-    case round do
-      {"red", x} when x > 12 -> false
-      {"green", x} when x > 13 -> false
-      {"blue", x} when x > 14 -> false
-      _ -> true
-    end
-  end
+  defp check({"red", x}) when x > 12, do: false
+  defp check({"green", x}) when x > 13, do: false
+  defp check({"blue", x}) when x > 14, do: false
+  defp check(_), do: true
 end
 
 defmodule Part2 do
