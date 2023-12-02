@@ -55,16 +55,11 @@ defmodule Part2 do
   def solve do
     Parse.parse("input/day2.txt")
     |> Enum.map(fn {_, rounds} ->
-      %{"red" => red, "green" => green, "blue" => blue} =
-        Enum.reduce(
-          rounds,
-          %{"red" => 0, "green" => 0, "blue" => 0},
-          &update_min_values(&1, &2)
-        )
-
-      red * green * blue
+      Enum.reduce(rounds, %{"red" => 0, "green" => 0, "blue" => 0}, &update_min_values(&1, &2))
     end)
-    |> Enum.sum()
+    |> Enum.reduce(0, fn %{"red" => red, "green" => green, "blue" => blue}, acc ->
+      acc + red * green * blue
+    end)
   end
 
   defp update_min_values({color, num}, acc) do
