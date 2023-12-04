@@ -41,3 +41,34 @@ defmodule Part1 do
     end)
   end
 end
+
+defmodule Part2 do
+  def solve do
+    games = Parse.parse("input/day4.txt")
+
+    tickets =
+      1..Enum.count(games)
+      |> Map.new(fn num -> {num, 1} end)
+
+    games
+    |> Enum.with_index()
+    |> Enum.reduce(tickets, fn {{winning_numbers, lotto_numbers}, idx}, acc ->
+      idx = idx + 1
+      current_ticket_amount = Map.get(acc, idx)
+
+      matches = Enum.count(lotto_numbers, fn number -> Enum.member?(winning_numbers, number) end)
+
+      if matches == 0 do
+        acc
+      else
+        (idx + 1)..(idx + matches)
+        |> Enum.reduce(acc, fn n, acc ->
+          old = Map.get(acc, n)
+          Map.put(acc, n, old + current_ticket_amount)
+        end)
+      end
+    end)
+    |> Map.values()
+    |> Enum.sum()
+  end
+end
