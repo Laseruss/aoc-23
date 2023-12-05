@@ -24,19 +24,12 @@ defmodule Parse do
   end
 end
 
-defmodule Part1 do
-  def solve do
-    {seeds, transforms} = Parse.parse("input/day5.txt")
-
-    Enum.map(seeds, &find_location(&1, transforms))
-    |> Enum.min()
-  end
-
-  defp find_location(seed, []) do
+defmodule Helpers do
+  def find_location(seed, []) do
     seed
   end
 
-  defp find_location(seed, {start, new, steps}) do
+  def find_location(seed, {start, new, steps}) do
     if seed >= start and seed < start + steps do
       seed - start + new
     else
@@ -44,7 +37,7 @@ defmodule Part1 do
     end
   end
 
-  defp find_location(seed, [{start, new, steps} | rest_current]) do
+  def find_location(seed, [{start, new, steps} | rest_current]) do
     if seed >= start and seed < start + steps do
       seed - start + new
     else
@@ -52,11 +45,11 @@ defmodule Part1 do
     end
   end
 
-  defp find_location(seed, [[] | rest]) do
+  def find_location(seed, [[] | rest]) do
     find_location(seed, rest)
   end
 
-  defp find_location(seed, [current_transform | rest]) do
+  def find_location(seed, [current_transform | rest]) do
     [{start, new, steps} | rest_current] = current_transform
 
     if seed >= start and seed < start + steps do
@@ -67,4 +60,43 @@ defmodule Part1 do
   end
 end
 
-IO.puts(Part1.solve())
+defmodule Part1 do
+  def solve do
+    {seeds, transforms} = Parse.parse("input/day5.txt")
+
+    Enum.map(seeds, &Helpers.find_location(&1, transforms))
+    |> Enum.min()
+  end
+end
+
+defmodule Part2 do
+  def solve() do
+    {seeds, transforms} = Parse.parse("input/day5.txt")
+    seeds = Enum.chunk_every(seeds, 2)
+
+    transforms =
+      Enum.map(transforms, fn transform ->
+        Enum.map(transform, fn {start, new, steps} -> {new, start, steps} end)
+      end)
+      |> Enum.reverse()
+
+    find_first(0, transforms, seeds)
+  end
+
+  defp find_first(curr, transforms, seeds) do
+    starting_num = Helpers.find_location(curr, transforms)
+
+    found =
+      Enum.any?(seeds, fn [start, length] ->
+        starting_num >= start and starting_num < start + length
+      end)
+
+    if found do
+      curr
+    else
+      find_first(curr + 1, transforms, seeds)
+    end
+  end
+end
+
+IO.puts(Part2.solve())
