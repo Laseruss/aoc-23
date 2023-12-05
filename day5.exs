@@ -98,5 +98,3 @@ defmodule Part2 do
     end
   end
 end
-
-IO.puts(Part2.solve())
