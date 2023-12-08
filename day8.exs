@@ -46,4 +46,50 @@ defmodule Part1 do
   end
 end
 
-IO.puts(Part1.solve())
+defmodule Part2 do
+  def solve() do
+    {directions, moves} = Parse.parse("input/day8.txt")
+    starting_points = find_starting_points(moves)
+
+    Enum.map(starting_points, fn start -> walk(start, directions, directions, moves, 0) end)
+    |> lcm_of_result()
+  end
+
+  defp walk(<<_, _, ?Z>>, _, _, _, steps), do: steps
+
+  defp walk(current, [], direction_list, moves, steps) do
+    walk(current, direction_list, direction_list, moves, steps)
+  end
+
+  defp walk(current, [next_direction | rest], direction_list, moves, steps) do
+    if next_direction == ?L do
+      {next, _} = Map.get(moves, current)
+      walk(next, rest, direction_list, moves, steps + 1)
+    else
+      {_, next} = Map.get(moves, current)
+      walk(next, rest, direction_list, moves, steps + 1)
+    end
+  end
+
+  defp find_starting_points(moves) do
+    Map.keys(moves)
+    |> Enum.filter(&String.ends_with?(&1, "A"))
+  end
+
+  defp lcm_of_result([first, second | rest]) do
+    lcm = BasicMath.lcm(first, second)
+
+    Enum.reduce(rest, lcm, fn next, acc -> BasicMath.lcm(next, acc) end)
+  end
+end
+
+defmodule BasicMath do
+  def gcd(a, 0), do: a
+  def gcd(0, b), do: b
+  def gcd(a, b), do: gcd(b, rem(trunc(a), trunc(b)))
+
+  def lcm(0, 0), do: 0
+  def lcm(a, b), do: a * b / gcd(a, b)
+end
+
+IO.inspect(Part2.solve())
